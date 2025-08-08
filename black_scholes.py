@@ -7,7 +7,7 @@ class BlackScholesPricer:
     Black-Scholes model for pricing European call or put options
     """
 
-    def __init__(self, S, K, T, r=0.05, sigma=0.2, call=True):
+    def __init__(self, S, K, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
         self.S = S
         self.K = K
         self.T = T
@@ -16,8 +16,13 @@ class BlackScholesPricer:
         self.call = call
 
         self.price = self.compute_price()
+        self.delta = self.compute_delta()
+        self.gamma = self.compute_gamma()
+        self.vega = self.compute_vega()
+        self.theta = self.compute_theta()
+        self.rho = self.compute_rho()
 
-        # to add later: self.delta, self.gamma, self.vega, self.theta, self.rho
+        self.ticker = ticker
 
     def compute_price(self):
         if self.T <= 0 or self.sigma <= 0:
@@ -91,5 +96,9 @@ class BlackScholesPricer:
             return self.K * self.T * math.exp(-self.r * self.T) * norm.cdf(d2)
         else:
             return -self.K * self.T * math.exp(-self.r * self.T) * norm.cdf(-d2)
+
+    def __repr__(self):
+        if self.ticker:
+            return (f"{self.ticker} ({self.T}y) {self.K} {'Call' if self.call else 'Put'}: ${self.price:.2f}")
         
-    
+        return (f"BlackScholesPricer(S={self.S}, K={self.K}, T={self.T}, r={self.r}, sigma={self.sigma}, {'Call' if self.call else 'Put'}) --> ${self.price:.2f}")

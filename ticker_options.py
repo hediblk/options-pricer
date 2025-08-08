@@ -27,7 +27,7 @@ def main():
     sigma = 0.2
     call = True
 
-    pricer = BlackScholesPricer(S=S, K=K, T=T, r=r, sigma=sigma, call=call)
+    pricer = BlackScholesPricer(S=S, K=K, T=T, r=r, sigma=sigma, call=call, ticker=ticker)
 
     option_type = "Call" if call else "Put"
     print(f"{ticker} ({T}y) {K} {option_type}: ${pricer.price:.2f}")
