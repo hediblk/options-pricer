@@ -1,5 +1,6 @@
 import math
 from scipy.stats import norm
+from ticker_options import fetch_latest_price
 
 
 class BlackScholesPricer:
@@ -7,14 +8,19 @@ class BlackScholesPricer:
     Black-Scholes model for pricing European call or put options
     """
 
-    def __init__(self, S, K, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
-        self.S = S
+    def __init__(self, S=100, K=100, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
+        if ticker:
+            self.S = fetch_latest_price(ticker)
+        else:
+            self.S = S
+            
         self.K = K
         self.T = T
         self.r = r
         self.sigma = sigma
         self.call = call
-
+        self.ticker = ticker
+        
         self.price = self.compute_price()
         self.delta = self.compute_delta()
         self.gamma = self.compute_gamma()
@@ -22,7 +28,6 @@ class BlackScholesPricer:
         self.theta = self.compute_theta()
         self.rho = self.compute_rho()
 
-        self.ticker = ticker
 
     def compute_price(self):
         if self.T <= 0 or self.sigma <= 0:

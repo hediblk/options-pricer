@@ -1,5 +1,4 @@
 import yfinance as yf
-from black_scholes import BlackScholesPricer
 
 
 def fetch_latest_price(ticker):
@@ -16,22 +15,3 @@ def fetch_latest_price(ticker):
         raise RuntimeError(f"Error fetching price for {ticker}: {e}")
 
 
-def main():
-    ticker = "SPY"
-    S = fetch_latest_price(ticker)
-    print(f"{ticker}: ${S:.2f}")
-
-    K = 450
-    T = 0.5
-    r = 0.05
-    sigma = 0.2
-    call = True
-
-    pricer = BlackScholesPricer(S=S, K=K, T=T, r=r, sigma=sigma, call=call, ticker=ticker)
-
-    option_type = "Call" if call else "Put"
-    print(f"{ticker} ({T}y) {K} {option_type}: ${pricer.price:.2f}")
-
-
-if __name__ == "__main__":
-    main()
