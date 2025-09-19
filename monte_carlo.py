@@ -8,11 +8,14 @@ class MonteCarloPricer:
     Monte Carlo simulation for pricing European call and put options
     """
 
-    def __init__(self, S=100, K=100, T=1, r=0.05, sigma=0.2, N=1000, call=True, ticker=None, seed=42):
+    def __init__(self, S=100, K=100, T=1, r=0.05, sigma=0.2, N=1000, call=True, ticker=None, seed=None):
         if ticker:
             self.S = fetch_latest_price(ticker)
         else:
             self.S = S
+
+        if seed is not None:
+            np.random.seed(seed)
 
         self.K = K
         self.T = T
@@ -21,9 +24,7 @@ class MonteCarloPricer:
         self.N = N
         self.call = call
         self.ticker = ticker
-        self.seed = seed
 
-        np.random.seed(self.seed)
         self.price, self.SE = self.run_simulation()
 
     def run_simulation(self):
