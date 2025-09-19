@@ -1,11 +1,11 @@
 import math
 from scipy.stats import norm
-from ticker_options import fetch_latest_price
+from utils import fetch_latest_price
 
 
 class BlackScholesPricer:
     """
-    Black-Scholes model for pricing European call or put options
+    Black-Scholes model for pricing European call and put options
     """
 
     def __init__(self, S=100, K=100, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
