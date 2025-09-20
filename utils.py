@@ -30,3 +30,9 @@ def get_nearest_friday_from_T(T, today=None):
         return friday_after
     return friday_before
 
+def get_T_from_datetime(date, today=None):
+    if today is None:
+        today = datetime.date.today()
+
+    delta = date - today
+    return delta.days / 365.0
