@@ -1,53 +1,41 @@
 import streamlit as st
-from black_scholes import BlackScholesPricer
+from ui.euro_options import show_euro_options_tab
+from ui.us_options import show_us_options_tab
+from ui.monte_carlo_sim import show_monte_carlo_tab
 
 st.title("Options Pricer")
-st.write("Calculate European option prices and Greeks using the Black-Scholes model.")
 
-# sidebar
+# Sidebar for user inputs (shared across tabs)
 st.sidebar.header("Parameters")
 
-price_method = st.sidebar.radio("Choose Price Input Method", ('Enter Price Manually', 'Fetch live ticker price'))
-
+price_method = st.sidebar.radio(
+    "Choose Price Input Method", ('Enter Price Manually', 'Fetch live ticker price'))
 S = None
 ticker = None
 
 if price_method == 'Enter Price Manually':
-    S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0)
+    S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
 else:
     ticker = st.sidebar.text_input("Ticker", value="SPY")
 
-K = st.sidebar.number_input("Strike Price (K)", value=105.0, step=1.0)
-T = st.sidebar.number_input("Time to Maturity (T in years)", value=1.0, step=0.1)
-r = st.sidebar.slider("Risk-Free Rate (r)", 0.0, 0.2, 0.05)
-sigma = st.sidebar.slider("Volatility (sigma)", 0.01, 1.0, 0.2)
 option_type = st.sidebar.selectbox("Option Type", ('Call', 'Put'))
-show_details = st.sidebar.checkbox("Show Detailed Data (Greeks)")
-
 is_call = (option_type == 'Call')
 
+K = st.sidebar.number_input("Strike Price (K)", value=105.0, step=1.0, min_value=0.01)
+T = st.sidebar.number_input(
+    "Time to Maturity (T in years)", value=1.0, step=0.05, min_value=0.01, max_value=2.0)
+r = st.sidebar.slider("Risk-Free Rate (r)", value=0.05, min_value=0.01, max_value=0.25)
+sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_value=2.0)
+show_details = st.sidebar.checkbox("Show Greeks (only for Euro Options)")
 
+# Top menu bar with tabs
+tab1, tab2, tab3 = st.tabs(["Euro Options", "US Options", "Monte Carlo Sim"])
 
-# center panel
-if st.sidebar.button("Calculate"):
-    try:
-        if ticker:
-            option = BlackScholesPricer(K=K, T=T, r=r, sigma=sigma, call=is_call, ticker=ticker)
-        else:
-            option = BlackScholesPricer(S=S, K=K, T=T, r=r, sigma=sigma, call=is_call)
+with tab1:
+    show_euro_options_tab(S, K, T, r, sigma, is_call, ticker, show_details)
 
-        st.header("Results")
-        st.write(f"**Option Price:** ${option.price:.2f}")
+with tab2:
+    show_us_options_tab()
 
-        if show_details:
-            st.subheader("Greeks")
-            st.write(f"**Delta:** {option.delta:.2f}")
-            st.write(f"**Gamma:** {option.gamma:.2f}")
-            st.write(f"**Vega:** {option.vega:.2f}")
-            st.write(f"**Theta:** {option.theta:.2f}")
-            st.write(f"**Rho:** {option.rho:.2f}")
-
-        st.info(option)
-
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+with tab3:
+    show_monte_carlo_tab()
