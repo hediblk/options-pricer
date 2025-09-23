@@ -20,16 +20,16 @@ def show_euro_options_tab(S, K, T, r, sigma, is_call, ticker, show_details):
 
         if show_details:
             st.subheader("Greeks")
-            # display greeks in a table/df format instead of individual lines
-            greeks_data = {
-                "Delta": option.delta.round(4),
-                "Gamma": option.gamma.round(4),
-                "Vega": option.vega.round(4),
-                "Theta": option.theta.round(4),
-                "Rho": option.rho.round(4)
-            }
-            df = pd.DataFrame(data=greeks_data, index=[0])
-            st.write(df, use_container_width=True)
+            greeks_data = [
+                {"Greek": "Delta", "Value": option.delta.round(4)},
+                {"Greek": "Gamma", "Value": option.gamma.round(4)},
+                {"Greek": "Vega", "Value": option.vega.round(4)},
+                {"Greek": "Theta", "Value": option.theta.round(4)},
+                {"Greek": "Rho", "Value": option.rho.round(4)}
+            ]
+
+            greeks_data = pd.DataFrame(greeks_data).set_index('Greek').T
+            st.dataframe(data=greeks_data, hide_index=True)
 
         st.info(option)
 
