@@ -3,7 +3,7 @@ import pandas as pd
 from black_scholes import BlackScholesPricer
 
 
-def show_euro_options_tab(S, K, T, r, sigma, is_call, ticker, show_details):
+def show_european_options_tab(S, K, T, r, sigma, is_call, ticker, show_details):
 
     try:
         #if ticker:

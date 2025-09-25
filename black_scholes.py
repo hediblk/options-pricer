@@ -8,7 +8,7 @@ class BlackScholesPricer:
     Black-Scholes model for pricing European call and put options
     """
 
-    def __init__(self, S=100, K=100, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
+    def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
         if ticker:
             self.S = fetch_latest_price(ticker)
         else:

@@ -1,6 +1,6 @@
 import streamlit as st
-from ui.euro_options import show_euro_options_tab
-from ui.us_options import show_us_options_tab
+from ui.european_options import show_european_options_tab
+from ui.american_options import show_american_options_tab
 from ui.monte_carlo_sim import show_monte_carlo_tab
 
 st.title("Options Pricer")
@@ -29,13 +29,13 @@ sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_v
 show_details = st.sidebar.checkbox("Show Greeks (only for Euro Options)")
 
 # Top menu bar with tabs
-tab1, tab2, tab3 = st.tabs(["Euro Options", "US Options", "Monte Carlo Sim"])
+tab1, tab2, tab3 = st.tabs(["European Options", "American Options", "Monte Carlo Sim"])
 
 with tab1:
-    show_euro_options_tab(S, K, T, r, sigma, is_call, ticker, show_details)
+    show_european_options_tab(S, K, T, r, sigma, is_call, ticker, show_details)
 
 with tab2:
-    show_us_options_tab()
+    show_american_options_tab()
 
 with tab3:
     show_monte_carlo_tab()
