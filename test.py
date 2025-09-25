@@ -1,6 +1,7 @@
 import math
 from black_scholes import BlackScholesPricer
 from monte_carlo import MonteCarloPricer
+from binomial_tree import BinomialTreePricer
 import datetime
 from utils import fetch_latest_price, get_nearest_friday_from_T, get_T_from_datetime
 
@@ -49,3 +50,10 @@ def test_MC_plots():
 def test_get_T_from_datetime():
     print(get_T_from_datetime(datetime.date(2025, 9, 26)))
     print(BlackScholesPricer(T=get_T_from_datetime(datetime.date(2025, 9, 26))))
+
+def test_binomial_tree():
+    bt_call = BinomialTreePricer(call=True, steps=200)
+    bt_put = BinomialTreePricer(call=False, steps=200)
+
+    print(bt_call)
+    print(bt_put)
