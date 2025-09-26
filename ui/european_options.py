@@ -6,7 +6,7 @@ from black_scholes import BlackScholesPricer
 def show_european_options_tab(S, K, T, r, sigma, is_call, ticker, show_details):
 
     try:
-        #if ticker:
+        # if ticker:
         option = BlackScholesPricer(
                 K=K, T=T, r=r, sigma=sigma, call=is_call, ticker=ticker)
         """
@@ -31,7 +31,7 @@ def show_european_options_tab(S, K, T, r, sigma, is_call, ticker, show_details):
             greeks_data = pd.DataFrame(greeks_data).set_index('Greek').T
             st.dataframe(data=greeks_data, hide_index=True)
 
-        st.info(option)
+        st.code(option)
 
     except Exception as e:
         st.error(f"An error occurred: {e}")

@@ -8,8 +8,7 @@ st.title("Options Pricer")
 # Sidebar for user inputs (shared across tabs)
 st.sidebar.header("Parameters")
 
-price_method = st.sidebar.radio(
-    "Choose Price Input Method", ('Enter Price Manually', 'Fetch live ticker price'))
+price_method = st.sidebar.radio("Choose Price Input Method", ('Enter Price Manually', 'Fetch live ticker price'))
 S = None
 ticker = None
 
@@ -27,6 +26,7 @@ T = st.sidebar.number_input(
 r = st.sidebar.slider("Risk-Free Rate (r)", value=0.05, min_value=0.01, max_value=0.25)
 sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_value=2.0)
 show_details = st.sidebar.checkbox("Show Greeks (only for Euro Options)")
+steps = st.sidebar.slider("Steps/N (for Binomial & Monte Carlo)", value=100, min_value=10, max_value=500, step=10)
 
 # Top menu bar with tabs
 tab1, tab2, tab3 = st.tabs(["European Options", "American Options", "Monte Carlo Sim"])
@@ -35,7 +35,7 @@ with tab1:
     show_european_options_tab(S, K, T, r, sigma, is_call, ticker, show_details)
 
 with tab2:
-    show_american_options_tab()
+    show_american_options_tab(S, K, T, r, sigma, steps, is_call, ticker)
 
 with tab3:
-    show_monte_carlo_tab()
+    show_monte_carlo_tab(S, K, T, r, sigma, steps, is_call, ticker)
