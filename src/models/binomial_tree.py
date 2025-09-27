@@ -62,6 +62,6 @@ class BinomialTreePricer:
     
     def __repr__(self):
         if self.ticker:
-            return (f"{self.ticker} ({self.T:<.2f}y) {self.K} {'Call' if self.call else 'Put'}: ${self.price:.2f}")
+            return (f"{self.ticker} ({self.T:<.2f}y) {self.K:<.2f} {'Call' if self.call else 'Put'}: ${self.price:.2f}")
 
-        return (f"BinomialTreePricer(S={self.S}, K={self.K}, T={self.T:<.2f}, r={self.r:<.2f}, sigma={self.sigma:<.2f}, {'Call' if self.call else 'Put'}) = ${self.price:.2f}")
+        return (f"BinomialTreePricer(S={self.S:<.2f}, K={self.K:<.2f}, T={self.T:<.2f}, r={self.r:<.2f}, sigma={self.sigma:<.2f}, {'Call' if self.call else 'Put'}) = ${self.price:.2f}")
