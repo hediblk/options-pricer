@@ -12,9 +12,6 @@ def show_european_options_tab(S, K, T, r, sigma, is_call, ticker):
 
         type = "Call" if is_call else "Put"
         st.subheader(f"**{type} Option Price:** ${option.price:.2f}")
-        
-        if ticker:
-            st.write(f"**{ticker} latest market price:** ${option.S:.2f}")
 
         show_details = st.checkbox("Show Greeks")
 

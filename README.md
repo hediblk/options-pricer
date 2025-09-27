@@ -10,6 +10,6 @@ Next step is to add some form of implied volatility calculation and feed it to a
 ### Streamlit dashboard
 You can currently interactively price European options with the Black Scholes model (Monte Carlo and Binomial Tree coming soon) using the Streamlit dashboard. To run it, use the command:
 ```
-streamlit run app.py
+streamlit run src/app.py
 ```
 A new browser window should open with the dashboard at `http://localhost:8501`. If not, you can manually open this address in your browser.
