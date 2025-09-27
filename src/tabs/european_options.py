@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from black_scholes import BlackScholesPricer
+from models.black_scholes import BlackScholesPricer
 
 
 def show_european_options_tab(S, K, T, r, sigma, is_call, ticker):

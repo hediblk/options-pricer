@@ -1,8 +1,8 @@
 import streamlit as st
 from utils import get_next_fridays
-from ui.european_options import show_european_options_tab
-from ui.american_options import show_american_options_tab
-from ui.monte_carlo_sim import show_monte_carlo_tab
+from tabs.european_options import show_european_options_tab
+from tabs.american_options import show_american_options_tab
+from tabs.monte_carlo_sim import show_monte_carlo_tab
 
 st.title("Options Pricer")
 
