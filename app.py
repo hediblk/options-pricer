@@ -1,4 +1,5 @@
 import streamlit as st
+from utils import get_next_fridays
 from ui.european_options import show_european_options_tab
 from ui.american_options import show_american_options_tab
 from ui.monte_carlo_sim import show_monte_carlo_tab
@@ -17,12 +18,20 @@ if price_method == 'Enter Price Manually':
 else:
     ticker = st.sidebar.text_input("Ticker", value="SPY")
 
+date_method = st.sidebar.radio("Choose Maturity Input Method", ('Enter T in years', 'Use calendar'))
+
+if date_method == 'Enter T in years':
+    T = st.sidebar.number_input(
+        "Time to Maturity (T in years)", value=1.0, step=0.05, min_value=0.01, max_value=2.0)
+else:
+    next_fridays = get_next_fridays(n=53)
+    selected_date = st.sidebar.selectbox("Select Expiration Date", list(next_fridays.keys()))
+    T = next_fridays[selected_date]
+
 option_type = st.sidebar.selectbox("Option Type", ('Call', 'Put'))
 is_call = (option_type == 'Call')
 
 K = st.sidebar.number_input("Strike Price (K)", value=105.0, step=1.0, min_value=0.01)
-T = st.sidebar.number_input(
-    "Time to Maturity (T in years)", value=1.0, step=0.05, min_value=0.01, max_value=2.0)
 r = st.sidebar.slider("Risk-Free Rate (r)", value=0.05, min_value=0.01, max_value=0.25)
 sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_value=2.0)
 

@@ -36,3 +36,29 @@ def get_T_from_datetime(date, today=None):
 
     delta = date - today
     return delta.days / 365.0
+
+
+def get_next_fridays(n=52, today=None):
+    if today is None:
+        today = datetime.date.today()
+
+    days_ahead = 4 - today.weekday()
+    if days_ahead <= 0:
+        days_ahead += 7
+
+    next_fridays = {}
+
+    # no 0dte if today is friday
+    # it will break black scholes
+
+    for i in range(n):
+        next_friday = today + datetime.timedelta(days=days_ahead + i * 7)
+        T = (next_friday - today).days / 365.0
+        key = f"{next_friday.strftime('%d-%m-%Y')} ({(next_friday - today).days} days)"
+        next_fridays[key] = T
+
+    return next_fridays
+
+
+if __name__ == "__main__":
+    print(get_next_fridays(3))
