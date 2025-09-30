@@ -29,8 +29,6 @@ class BinomialTreePricer:
         self.disc = math.exp(-r * self.dt)
         self.p = (math.exp(r * self.dt) - self.d) / (self.u - self.d)
 
-        #print(f"u: {self.u:<.3f}, d: {self.d:<.3f}, p: {self.p:<.3f}")
-
         if not (0 <= self.p <= 1):
             raise ValueError(
                 "Invalid probabilities (increase n or check params).")

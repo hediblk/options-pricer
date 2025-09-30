@@ -4,7 +4,9 @@ from tabs.european_options import show_european_options_tab
 from tabs.american_options import show_american_options_tab
 from tabs.monte_carlo_sim import show_monte_carlo_tab
 
-st.title("Options Pricer")
+st.set_page_config(page_title="Options Pricer")
+
+st.header("Options Pricer")
 
 # Sidebar for user inputs (shared across tabs)
 st.sidebar.header("Parameters")

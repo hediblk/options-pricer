@@ -34,6 +34,9 @@ def get_T_from_datetime(date, today=None):
     if today is None:
         today = datetime.date.today()
 
+    if date < today:
+        raise ValueError("Date must be in the future")
+
     delta = date - today
     return delta.days / 365.0
 

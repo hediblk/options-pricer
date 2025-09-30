@@ -1,7 +1,7 @@
 import math
-from black_scholes import BlackScholesPricer
-from monte_carlo import MonteCarloPricer
-from binomial_tree import BinomialTreePricer
+from models.black_scholes import BlackScholesPricer
+from models.monte_carlo import MonteCarloPricer
+from models.binomial_tree import BinomialTreePricer
 import datetime
 from utils import fetch_latest_price, get_nearest_friday_from_T, get_T_from_datetime
 
@@ -41,15 +41,15 @@ def test_BS_vs_MC():
     print(f"Put MC : {mc_put.price:.4f}, SE: {mc_put.SE:.4f}")
 
 def test_MC_plots():
-    mc_call = MonteCarloPricer(call=True, seed=42, num_paths=1000, num_steps=100)
+    mc_call = MonteCarloPricer(call=True, seed=42, N=1000)
     mc_call.plot_histogram()
     mc_call.plot_convergence()
     mc_call.plot_paths()
 
 
 def test_get_T_from_datetime():
-    print(get_T_from_datetime(datetime.date(2025, 9, 26)))
-    print(BlackScholesPricer(T=get_T_from_datetime(datetime.date(2025, 9, 26))))
+    print(get_T_from_datetime(datetime.date(2026, 1, 1)))
+    print(BlackScholesPricer(T=get_T_from_datetime(datetime.date(2026, 1, 1))))
 
 def test_binomial_tree():
     bt_call = BinomialTreePricer(call=True, steps=200)
@@ -57,3 +57,13 @@ def test_binomial_tree():
 
     print(bt_call)
     print(bt_put)
+
+
+if __name__ == "__main__":
+    test_spy_option()
+    test_price_fetch()
+    test_fridays()
+    test_BS_vs_MC()
+    test_get_T_from_datetime()
+    test_binomial_tree()
+    #test_MC_plots()
