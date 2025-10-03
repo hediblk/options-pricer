@@ -1,4 +1,5 @@
 import streamlit as st
+from math import ceil
 from utils import get_next_fridays, fetch_latest_price
 from tabs.european_options import show_european_options_tab
 from tabs.american_options import show_american_options_tab
@@ -27,7 +28,7 @@ else:
             S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
         else:
             st.sidebar.success(f"Fetched live price for {ticker}: ${S:.2f}")
-            default_K = S
+            default_K = float(ceil(S))
 
 date_method = st.sidebar.radio("Choose Maturity Input Method", ('Enter T in years', 'Use calendar'))
 

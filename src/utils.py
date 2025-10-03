@@ -62,6 +62,12 @@ def get_next_fridays(n=52, today=None):
 
     return next_fridays
 
+def get_num_days_from_T(T, today=None):
+    if today is None:
+        today = datetime.date.today()
+    target = today + datetime.timedelta(days=int(round(T * 365)))
+    return (target - today).days
+
 
 if __name__ == "__main__":
     print(get_next_fridays(3))

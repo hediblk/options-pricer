@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import fetch_latest_price
+from utils import fetch_latest_price, get_num_days_from_T
 
 
 class MonteCarloPricer:
@@ -41,28 +41,33 @@ class MonteCarloPricer:
 
         SE = np.exp(-self.r * self.T) * payoff.std(ddof=1) / np.sqrt(self.N)
 
-        return price, SE
+        return price, float(SE)
     
     def plot_histogram(self, bins=50):
-        plt.hist(self.S_T, bins=bins, edgecolor='black', alpha=0.7)
-        plt.title('Histogram of Simulated Asset Prices at Maturity')
-        plt.xlabel('Asset Price at Maturity')
-        plt.ylabel('Frequency')
-        plt.grid(True)
-        plt.show()
+        fig, ax = plt.subplots()
+        ax.hist(self.S_T, bins=bins, edgecolor='black', alpha=0.7)
+        ax.set_title(f'Histogram of Simulated Asset Prices at Maturity T={self.T:.2f}y')
+        ax.set_xlabel('Asset Price at Maturity')
+        ax.set_ylabel('Frequency')
+        ax.grid(True)
+        fig.tight_layout()
+        return fig
 
     def plot_convergence(self):
         cumulative_payoff = np.cumsum(np.maximum(self.S_T - self.K, 0) if self.call else np.maximum(self.K - self.S_T, 0))
         cumulative_average = np.exp(-self.r * self.T) * cumulative_payoff / np.arange(1, self.N + 1)
 
-        plt.plot(cumulative_average)
-        plt.title('Convergence of Monte Carlo Price Estimate')
-        plt.xlabel('Number of Simulations')
-        plt.ylabel('Estimated Option Price')
-        plt.grid(True)
-        plt.show()
+        fig, ax = plt.subplots()
+        ax.plot(cumulative_average)
+        ax.set_title('Convergence of Monte Carlo Price Estimate')
+        ax.set_xlabel('Number of Simulations')
+        ax.set_ylabel('Estimated Option Price')
+        ax.grid(True)
+        fig.tight_layout()
+        return fig
 
-    def plot_paths(self, num_paths=20, time_steps=100):
+    def plot_paths(self, num_paths=50):
+        time_steps = get_num_days_from_T(self.T)
         dt = self.T / time_steps
         paths = np.zeros((num_paths, time_steps + 1))
         paths[:, 0] = self.S
@@ -71,14 +76,20 @@ class MonteCarloPricer:
             Z = np.random.randn(num_paths)
             paths[:, t] = paths[:, t - 1] * np.exp((self.r - 0.5 * self.sigma**2) * dt + self.sigma * np.sqrt(dt) * Z)
 
-        for i in range(num_paths):
-            plt.plot(paths[i], lw=1)
+        fig, ax = plt.subplots()
 
-        plt.title('Simulated Asset Price Paths')
-        plt.xlabel('Time Steps')
-        plt.ylabel('Asset Price')
-        plt.grid(True)
-        plt.show()
+        for i in range(num_paths):
+            ax.plot(paths[i], lw=1)
+        
+        ax.plot(paths.mean(axis=0), color='red', lw=3, label='Average Path')
+        ax.legend()
+
+        ax.set_title(f'Simulated Asset Price Paths ({num_paths} shown)')
+        ax.set_xlabel('Time Steps')
+        ax.set_ylabel('Asset Price')
+        ax.grid(True)
+        fig.tight_layout()
+        return fig
 
     def __repr__(self):
         if self.ticker:
