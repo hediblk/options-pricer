@@ -58,12 +58,24 @@ def test_binomial_tree():
     print(bt_call)
     print(bt_put)
 
+def test_mutilple_binomial_trees():
+    for steps in [10, 50, 100, 200, 500, 1000, 2000]:
+        bt_call = BinomialTreePricer(call=True, steps=steps)
+        bt_put = BinomialTreePricer(call=False, steps=steps)
+
+        print(f"\n===========Steps: {steps}===========")
+        print(bt_call)
+        print(bt_put)
+
 
 if __name__ == "__main__":
+
+
     test_spy_option()
     test_price_fetch()
     test_fridays()
     test_BS_vs_MC()
     test_get_T_from_datetime()
     test_binomial_tree()
-    #test_MC_plots()
+    test_mutilple_binomial_trees()
+    test_MC_plots()
