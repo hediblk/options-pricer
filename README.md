@@ -3,12 +3,12 @@
 ### Goal
 This is my attempt at implementing the Black-Scholes, Binomial Tree, and Monte Carlo models in Python for pricing European and American call and put options. The implementation also includes the ability to fetch current stock/ETF prices using the `yfinance` library so it is for example possible to price an SPY call option using the current SPY price.
 
+You can also find the implied volatility given a market option price using the Newton Raphson root finding method.
 
-### Next steps
-Next step is to add some form of implied volatility calculation and feed it to all models. 
+
 
 ### Streamlit dashboard
-You can currently interactively price European options with the Black Scholes model (Monte Carlo and Binomial Tree coming soon) using the Streamlit dashboard. To run it, use the command:
+To run it, use the command:
 ```
 streamlit run src/app.py
 ```
