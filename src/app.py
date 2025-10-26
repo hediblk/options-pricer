@@ -1,9 +1,11 @@
 import streamlit as st
 from math import ceil
-from utils import get_next_fridays, fetch_latest_price
+from utils import get_next_fridays, fetch_stock_price
+
 from tabs.european_options import show_european_options_tab
 from tabs.american_options import show_american_options_tab
 from tabs.monte_carlo_sim import show_monte_carlo_tab
+from tabs.implied_volatility import show_implied_volatility_tab
 
 st.set_page_config(page_title="Options Pricer")
 
@@ -22,13 +24,13 @@ if price_method == 'Enter Price Manually':
 else:
     ticker = st.sidebar.text_input("Ticker", value="SPY")
     if ticker:
-        S = fetch_latest_price(ticker)
+        S = fetch_stock_price(ticker)
         if S is None:
             st.sidebar.error("Failed to fetch price. Please check the ticker symbol.")
             S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
         else:
             st.sidebar.success(f"Fetched live price for {ticker}: ${S:.2f}")
-            default_K = float(ceil(S))
+            default_K = float(ceil(S)+5)
 
 date_method = st.sidebar.radio("Choose Maturity Input Method", ('Enter T in years', 'Use calendar'))
 
@@ -49,7 +51,7 @@ sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_v
 
 
 # Top menu bar with tabs
-tab1, tab2, tab3 = st.tabs(["European Options", "American Options", "Monte Carlo Sim"])
+tab1, tab2, tab3, tab4 = st.tabs(["European Options", "American Options", "Monte Carlo Sim", "Implied Volatility"])
 
 with tab1:
     show_european_options_tab(S, K, T, r, sigma, is_call, ticker)
@@ -59,3 +61,6 @@ with tab2:
 
 with tab3:
     show_monte_carlo_tab(S, K, T, r, sigma, is_call, ticker)
+
+with tab4:
+    show_implied_volatility_tab(S, K, T, r, is_call, ticker)

@@ -3,7 +3,7 @@ from models.black_scholes import BlackScholesPricer
 from models.monte_carlo import MonteCarloPricer
 from models.binomial_tree import BinomialTreePricer
 import datetime
-from utils import fetch_latest_price, get_nearest_friday_from_T, get_T_from_datetime
+from utils import fetch_stock_price, get_nearest_friday_from_T, get_T_from_datetime
 
 
 def test_spy_option():
@@ -19,7 +19,7 @@ def test_spy_option():
 
 
 def test_price_fetch():
-    print(fetch_latest_price("SPY"))
+    print(fetch_stock_price("SPY"))
 
 
 def test_fridays():
@@ -69,8 +69,6 @@ def test_mutilple_binomial_trees():
 
 
 if __name__ == "__main__":
-
-
     test_spy_option()
     test_price_fetch()
     test_fridays()

@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from utils import fetch_latest_price
+from utils import fetch_stock_price
 
 
 class BinomialTreePricer:
@@ -11,10 +11,9 @@ class BinomialTreePricer:
 
     def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, steps=100, call=True, ticker=None):
         if ticker:
-            self.S = fetch_latest_price(ticker)
+            self.S = fetch_stock_price(ticker)
         else:
             self.S = S
-            
         self.K = K
         self.T = T
         self.r = r

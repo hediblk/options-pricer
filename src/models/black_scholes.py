@@ -1,6 +1,8 @@
+from utils import fetch_stock_price
 import math
+import sys
+import os
 from scipy.stats import norm
-from utils import fetch_latest_price
 
 
 class BlackScholesPricer:
@@ -10,17 +12,17 @@ class BlackScholesPricer:
 
     def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
         if ticker:
-            self.S = fetch_latest_price(ticker)
+            self.S = fetch_stock_price(ticker)
         else:
             self.S = S
-            
+
         self.K = K
         self.T = T
         self.r = r
         self.sigma = sigma
         self.call = call
         self.ticker = ticker
-        
+
         self.d1 = (math.log(self.S / self.K) + (self.r + 0.5 * self.sigma ** 2) * self.T) / (self.sigma * math.sqrt(self.T))
         self.d2 = self.d1 - self.sigma * math.sqrt(self.T)
 
@@ -30,7 +32,6 @@ class BlackScholesPricer:
         self.vega = self.compute_vega()
         self.theta = self.compute_theta()
         self.rho = self.compute_rho()
-
 
     def compute_price(self):
         if self.T <= 0 or self.sigma <= 0:

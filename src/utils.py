@@ -1,19 +1,41 @@
 import datetime
 import yfinance as yf
+import numpy as np
 
 
-def fetch_latest_price(ticker):
+def fetch_stock_price(ticker):
     try:
         data = yf.download(ticker, period="1d",
                            interval="1d", auto_adjust=True, progress=False)
         if data.empty:
             raise ValueError("No data returned")
-        
+
         latest_price = data["Close"].iloc[-1].item()
         return latest_price
     
     except Exception as e:
         raise RuntimeError(f"Error fetching price for {ticker}: {e}")
+
+
+def fetch_option_price(ticker, K, expiry, call=True):
+    chain = yf.Ticker(ticker).option_chain(expiry)
+
+    df = chain.calls if call == True else chain.puts
+    row = df[df["strike"] == float(K)]
+    
+    if row.empty:
+        return None
+
+    r = row.iloc[0]
+
+    bid = r.get("bid", np.nan)
+    ask = r.get("ask", np.nan)
+
+    # default is mid price for now
+    # can add option to choose bid or ask instead
+    mid = (bid + ask) / 2
+
+    return round(mid, 2)
 
 
 def get_nearest_friday_from_T(T, today=None):
@@ -70,4 +92,13 @@ def get_num_days_from_T(T, today=None):
 
 
 if __name__ == "__main__":
-    print(get_next_fridays(3))
+    date = get_next_fridays(10).keys()
+    ex = get_next_fridays(10).values()
+    print(date)
+
+    asba=[]
+    for t in ex:
+        asba.append(get_nearest_friday_from_T(t))
+
+    for i in asba:
+        print(i)
