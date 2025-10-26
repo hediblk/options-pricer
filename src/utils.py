@@ -91,14 +91,3 @@ def get_num_days_from_T(T, today=None):
     return (target - today).days
 
 
-if __name__ == "__main__":
-    date = get_next_fridays(10).keys()
-    ex = get_next_fridays(10).values()
-    print(date)
-
-    asba=[]
-    for t in ex:
-        asba.append(get_nearest_friday_from_T(t))
-
-    for i in asba:
-        print(i)
