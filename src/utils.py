@@ -20,7 +20,7 @@ def fetch_stock_price(ticker):
 def fetch_option_price(ticker, K, expiry, call=True):
     chain = yf.Ticker(ticker).option_chain(expiry)
 
-    df = chain.calls if call == True else chain.puts
+    df = chain.calls if call else chain.puts
     row = df[df["strike"] == float(K)]
     
     if row.empty:
