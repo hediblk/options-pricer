@@ -1,5 +1,7 @@
 # Options Pricer
 
+[Live dashboard](https://hediblk-options-pricer.streamlit.app/)
+
 ## Goal
 
 This is my attempt at implementing the Black-Scholes, Binomial Tree, and Monte Carlo models in Python for pricing European and American call and put options. The implementation also includes the ability to fetch current stock/ETF prices using the `yfinance` library so it is for example possible to price an SPY call option using the current SPY price.
