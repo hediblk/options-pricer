@@ -9,11 +9,8 @@ class BinomialTreePricer:
     Cox-Ross-Rubinstein (CRR) formulation is used for up and down factors.
     """
 
-    def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, steps=100, call=True, ticker=None):
-        if ticker:
-            self.S = fetch_stock_price(ticker)
-        else:
-            self.S = S
+    def __init__(self, S=None, K=105, T=1, r=0.05, sigma=0.2, steps=100, call=True, ticker=None):
+        self.S = S if S is not None else (fetch_stock_price(ticker) if ticker else 100)
         self.K = K
         self.T = T
         self.r = r
@@ -30,7 +27,8 @@ class BinomialTreePricer:
 
         if not (0 <= self.p <= 1):
             raise ValueError(
-                "Invalid probabilities (increase n or check params).")
+                f"These inputs require more than {math.floor(T * (r / sigma) ** 2)} tree steps. "
+                "Increase Steps, lower the rate or maturity, or increase volatility.")
 
         self.price = self.compute_price()
 

@@ -6,11 +6,13 @@ import numpy as np
 def fetch_stock_price(ticker):
     try:
         data = yf.download(ticker, period="1d",
-                           interval="1d", auto_adjust=True, progress=False)
+                           interval="1d", auto_adjust=False, progress=False, timeout=10)
         if data.empty:
             raise ValueError("No data returned")
 
         latest_price = data["Close"].iloc[-1].item()
+        if not np.isfinite(latest_price) or latest_price <= 0:
+            raise ValueError("Invalid closing price")
         return latest_price
     
     except Exception as e:
@@ -26,16 +28,18 @@ def fetch_option_price(ticker, K, expiry, call=True):
     if row.empty:
         return None
 
-    r = row.iloc[0]
+    quote = row.iloc[0]
 
-    bid = r.get("bid", np.nan)
-    ask = r.get("ask", np.nan)
+    bid = quote.get("bid", np.nan)
+    ask = quote.get("ask", np.nan)
+    if not np.isfinite(bid) or not np.isfinite(ask) or bid < 0 or ask <= 0 or ask < bid:
+        return None
 
     # default is mid price for now
     # can add option to choose bid or ask instead
     mid = (bid + ask) / 2
 
-    return round(mid, 2)
+    return float(mid)
 
 
 def get_nearest_friday_from_T(T, today=None):

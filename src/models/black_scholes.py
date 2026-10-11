@@ -1,7 +1,5 @@
 from utils import fetch_stock_price
 import math
-import sys
-import os
 from scipy.stats import norm
 
 
@@ -10,11 +8,12 @@ class BlackScholesPricer:
     Black-Scholes model for pricing European call and put options
     """
 
-    def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
-        if ticker:
-            self.S = fetch_stock_price(ticker)
-        else:
-            self.S = S
+    def __init__(self, S=None, K=105, T=1, r=0.05, sigma=0.2, call=True, ticker=None):
+        self.S = S if S is not None else (fetch_stock_price(ticker) if ticker else 100)
+        if not all(math.isfinite(x) for x in (self.S, K, T, r, sigma)):
+            raise ValueError("Parameters must be finite.")
+        if self.S <= 0 or K <= 0 or T < 0 or sigma < 0:
+            raise ValueError("Prices must be positive; maturity and volatility must be nonnegative.")
 
         self.K = K
         self.T = T
@@ -23,8 +22,12 @@ class BlackScholesPricer:
         self.call = call
         self.ticker = ticker
 
-        self.d1 = (math.log(self.S / self.K) + (self.r + 0.5 * self.sigma ** 2) * self.T) / (self.sigma * math.sqrt(self.T))
-        self.d2 = self.d1 - self.sigma * math.sqrt(self.T)
+        if T == 0 or sigma == 0:
+            forward_payoff = self.S - K * math.exp(-r * T)
+            self.d1 = self.d2 = math.inf if forward_payoff > 0 else (-math.inf if forward_payoff < 0 else 0.0)
+        else:
+            self.d1 = (math.log(self.S / self.K) + (self.r + 0.5 * self.sigma ** 2) * self.T) / (self.sigma * math.sqrt(self.T))
+            self.d2 = self.d1 - self.sigma * math.sqrt(self.T)
 
         self.price = self.compute_price()
         self.delta = self.compute_delta()
@@ -34,24 +37,12 @@ class BlackScholesPricer:
         self.rho = self.compute_rho()
 
     def compute_price(self):
-        if self.T <= 0 or self.sigma <= 0:
-            if self.call:
-                return max(0.0, self.S - self.K)
-            else:
-                return max(0.0, self.K - self.S)
-
         if self.call:
             return self.S * norm.cdf(self.d1) - self.K * math.exp(-self.r * self.T) * norm.cdf(self.d2)
         else:
             return self.K * math.exp(-self.r * self.T) * norm.cdf(-self.d2) - self.S * norm.cdf(-self.d1)
 
     def compute_delta(self):
-        if self.T <= 0 or self.sigma <= 0:
-            if self.call:
-                return 1.0 if self.S > self.K else 0.0
-            else:
-                return -1.0 if self.S < self.K else 0.0
-
         if self.call:
             return norm.cdf(self.d1)
         else:
@@ -70,11 +61,8 @@ class BlackScholesPricer:
         return self.S * norm.pdf(self.d1) * math.sqrt(self.T)
 
     def compute_theta(self):
-        if self.T <= 0 or self.sigma <= 0:
-            if self.call:
-                return -self.K * math.exp(-self.r * self.T) if self.S > self.K else 0.0
-            else:
-                return self.K * math.exp(-self.r * self.T) if self.S < self.K else 0.0
+        if self.T <= 0:
+            return 0.0
 
         if self.call:
             return (-self.S * norm.pdf(self.d1) * self.sigma / (2 * math.sqrt(self.T)) -
@@ -84,13 +72,6 @@ class BlackScholesPricer:
                     self.r * self.K * math.exp(-self.r * self.T) * norm.cdf(-self.d2))
 
     def compute_rho(self):
-        if self.T <= 0 or self.sigma <= 0:
-            if self.call:
-                return self.K * self.T * math.exp(-self.r * self.T) if self.S > self.K else 0.0
-            else:
-                return -self.K * self.T * math.exp(-self.r * self.T) if self.S < self.K else 0.0
-
-        d2 = (math.log(self.S / self.K) + (self.r - 0.5 * self.sigma ** 2) * self.T) / (self.sigma * math.sqrt(self.T))
         if self.call:
             return self.K * self.T * math.exp(-self.r * self.T) * norm.cdf(self.d2)
         else:

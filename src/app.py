@@ -7,6 +7,8 @@ from tabs.american_options import show_american_options_tab
 from tabs.monte_carlo_sim import show_monte_carlo_tab
 from tabs.implied_volatility import show_implied_volatility_tab
 
+fetch_stock_price = st.cache_data(ttl=300, show_spinner=False)(fetch_stock_price)
+
 st.set_page_config(page_title="Options Pricer")
 
 st.header("Options Pricer")
@@ -22,15 +24,21 @@ default_K = 105.0
 if price_method == 'Enter Price Manually':
     S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
 else:
-    ticker = st.sidebar.text_input("Ticker", value="SPY")
+    ticker = st.sidebar.text_input("Ticker", value="SPY").strip().upper()
     if ticker:
-        S = fetch_stock_price(ticker)
-        if S is None:
-            st.sidebar.error("Failed to fetch price. Please check the ticker symbol.")
-            S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
-        else:
-            st.sidebar.success(f"Fetched live price for {ticker}: ${S:.2f}")
-            default_K = float(ceil(S)+5)
+        try:
+            S = fetch_stock_price(ticker)
+        except RuntimeError:
+            st.sidebar.warning("Price unavailable. Check the ticker or enter a price manually.")
+    else:
+        st.sidebar.info("Enter a ticker or use a manual price below.")
+
+    if S is None:
+        ticker = None
+        S = st.sidebar.number_input("Underlying Price (S)", value=100.0, step=1.0, min_value=0.01)
+    else:
+        st.sidebar.success(f"Latest closing price for {ticker}: ${S:.2f}")
+        default_K = float(ceil(S)+5)
 
 date_method = st.sidebar.radio("Choose Maturity Input Method", ('Enter T in years', 'Use calendar'))
 

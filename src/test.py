@@ -48,8 +48,9 @@ def test_MC_plots():
 
 
 def test_get_T_from_datetime():
-    print(get_T_from_datetime(datetime.date(2026, 1, 1)))
-    print(BlackScholesPricer(T=get_T_from_datetime(datetime.date(2026, 1, 1))))
+    expiry = datetime.date.today() + datetime.timedelta(days=365)
+    print(get_T_from_datetime(expiry))
+    print(BlackScholesPricer(T=get_T_from_datetime(expiry)))
 
 def test_binomial_tree():
     bt_call = BinomialTreePricer(call=True, steps=200)

@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 from models.monte_carlo import MonteCarloPricer
 
 def show_monte_carlo_tab(S, K, T, r, sigma, is_call, ticker):
@@ -15,14 +16,15 @@ def show_monte_carlo_tab(S, K, T, r, sigma, is_call, ticker):
 
         show_plots = st.checkbox("Show Plots")
         if show_plots:
-            st.subheader("Histogram of Simulated Asset Prices at Maturity")
-            st.pyplot(option.plot_histogram())
-
-            st.subheader("Convergence of Monte Carlo Price Estimate")
-            st.pyplot(option.plot_convergence())
-
-            st.subheader("Simulated Asset Price Paths")
-            st.pyplot(option.plot_paths())
+            for title, plot in (
+                ("Histogram of Simulated Asset Prices at Maturity", option.plot_histogram),
+                ("Convergence of Monte Carlo Price Estimate", option.plot_convergence),
+                ("Simulated Asset Price Paths", option.plot_paths),
+            ):
+                st.subheader(title)
+                fig = plot()
+                st.pyplot(fig)
+                plt.close(fig)
 
     except Exception as e:
         st.error(f"Error: {e}")

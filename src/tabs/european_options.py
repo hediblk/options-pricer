@@ -17,15 +17,16 @@ def show_european_options_tab(S, K, T, r, sigma, is_call, ticker):
 
         if show_details:
             greeks_data = [
-                {"Greek": "Delta", "Value": option.delta.round(4)},
-                {"Greek": "Gamma", "Value": option.gamma.round(4)},
-                {"Greek": "Vega", "Value": option.vega.round(4)},
-                {"Greek": "Theta", "Value": option.theta.round(4)},
-                {"Greek": "Rho", "Value": option.rho.round(4)}
+                {"Greek": "Delta", "Value": round(option.delta, 4)},
+                {"Greek": "Gamma", "Value": round(option.gamma, 4)},
+                {"Greek": "Vega", "Value": round(option.vega, 4)},
+                {"Greek": "Theta", "Value": round(option.theta, 4)},
+                {"Greek": "Rho", "Value": round(option.rho, 4)}
             ]
 
             greeks_data = pd.DataFrame(greeks_data).set_index('Greek').T
             st.dataframe(data=greeks_data, hide_index=True)
+            st.caption("Theta is per year. Vega and rho are per 1.0 change; divide by 100 for a one percentage point change.")
 
         st.code(option)
 
