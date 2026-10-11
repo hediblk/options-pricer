@@ -7,7 +7,7 @@ class ImpliedVolatilityFinder:
     Newton Raphson IV solver
     """
 
-    def __init__(self, initial_sigma=0.20, tol=0.01, max_iter=100, clamp=(0.01, 2.0)):
+    def __init__(self, initial_sigma=0.20, tol=1e-8, max_iter=100, clamp=(0.01, 2.0)):
 
         self.sigma0 = initial_sigma
         self.tol = tol
@@ -15,7 +15,22 @@ class ImpliedVolatilityFinder:
         self.low, self.high = clamp
 
     def find_iv(self, option_price, S, K, T, r, call=True):
-        sigma = self.sigma0
+        if not all(np.isfinite(x) for x in (option_price, S, K, T, r)):
+            return None
+        if S <= 0 or K <= 0 or T <= 0 or option_price < 0:
+            return None
+
+        low, high = self.low, self.high
+        low_price = BlackScholesPricer(S, K, T, r, low, call).price
+        high_price = BlackScholesPricer(S, K, T, r, high, call).price
+        if option_price < low_price - self.tol or option_price > high_price + self.tol:
+            return None
+        if abs(option_price - low_price) < self.tol:
+            return low
+        if abs(option_price - high_price) < self.tol:
+            return high
+
+        sigma = float(np.clip(self.sigma0, low, high))
 
         for _ in range(self.max_iter):
             pricer = BlackScholesPricer(S, K, T, r, sigma, call)
@@ -25,21 +40,13 @@ class ImpliedVolatilityFinder:
             if abs(diff) < self.tol:
                 return sigma
 
-            v = pricer.vega
-            if not np.isfinite(v) or abs(v) < 1e-12:
-                eps = 1e-4
-                up = BlackScholesPricer(S, K, T, r, sigma + eps, call).price
-                down = BlackScholesPricer(S, K, T, r, sigma - eps, call).price
-                v = (up - down) / (2 * eps)
+            if diff > 0:
+                high = sigma
+            else:
+                low = sigma
 
-            if not np.isfinite(v) or v == 0.0:
-                break
-
-            sigma -= diff / v
-            if sigma <= self.low:
-                sigma = (self.low + sigma) / 2.0
-            if sigma >= self.high:
-                sigma = (self.high + sigma) / 2.0
+            candidate = sigma - diff / pricer.vega if pricer.vega > 1e-12 else np.nan
+            sigma = candidate if low < candidate < high else (low + high) / 2
 
         return None
 

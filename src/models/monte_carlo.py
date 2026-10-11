@@ -8,14 +8,9 @@ class MonteCarloPricer:
     Monte Carlo simulation for pricing European call and put options
     """
 
-    def __init__(self, S=100, K=105, T=1, r=0.05, sigma=0.2, N=1000, call=True, ticker=None, seed=None):
-        if ticker:
-            self.S = fetch_stock_price(ticker)
-        else:
-            self.S = S
-
-        if seed is not None:
-            np.random.seed(seed)
+    def __init__(self, S=None, K=105, T=1, r=0.05, sigma=0.2, N=1000, call=True, ticker=None, seed=None):
+        self.S = S if S is not None else (fetch_stock_price(ticker) if ticker else 100)
+        self.rng = np.random.default_rng(seed)
 
         self.K = K
         self.T = T
@@ -28,7 +23,7 @@ class MonteCarloPricer:
         self.price, self.SE = self.run_simulation()
 
     def run_simulation(self):
-        Z = np.random.randn(self.N)
+        Z = self.rng.standard_normal(self.N)
 
         self.S_T = self.S * np.exp((self.r - 0.5 * self.sigma**2) * self.T + self.sigma * np.sqrt(self.T) * Z)
 
@@ -67,13 +62,13 @@ class MonteCarloPricer:
         return fig
 
     def plot_paths(self, num_paths=50):
-        time_steps = get_num_days_from_T(self.T)
+        time_steps = max(1, get_num_days_from_T(self.T))
         dt = self.T / time_steps
         paths = np.zeros((num_paths, time_steps + 1))
         paths[:, 0] = self.S
 
         for t in range(1, time_steps + 1):
-            Z = np.random.randn(num_paths)
+            Z = self.rng.standard_normal(num_paths)
             paths[:, t] = paths[:, t - 1] * np.exp((self.r - 0.5 * self.sigma**2) * dt + self.sigma * np.sqrt(dt) * Z)
 
         fig, ax = plt.subplots()
