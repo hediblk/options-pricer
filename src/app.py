@@ -6,6 +6,7 @@ from tabs.european_options import show_european_options_tab
 from tabs.american_options import show_american_options_tab
 from tabs.monte_carlo_sim import show_monte_carlo_tab
 from tabs.implied_volatility import show_implied_volatility_tab
+from tabs.vertical_spreads import show_vertical_spreads_tab
 
 fetch_stock_price = st.cache_data(ttl=300, show_spinner=False)(fetch_stock_price)
 
@@ -59,7 +60,7 @@ sigma = st.sidebar.slider("Volatility (sigma)", value=0.2, min_value=0.01, max_v
 
 
 # Top menu bar with tabs
-tab1, tab2, tab3, tab4 = st.tabs(["European Options", "American Options", "Monte Carlo Sim", "Implied Volatility"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["European Options", "American Options", "Monte Carlo Sim", "Implied Volatility", "Vertical Spreads"])
 
 with tab1:
     show_european_options_tab(S, K, T, r, sigma, is_call, ticker)
@@ -72,3 +73,6 @@ with tab3:
 
 with tab4:
     show_implied_volatility_tab(S, K, T, r, is_call, ticker)
+
+with tab5:
+    show_vertical_spreads_tab()
