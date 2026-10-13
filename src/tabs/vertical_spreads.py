@@ -1,29 +1,54 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import pandas as pd
 from models.vertical_spread import VerticalSpread
+
+
+EXAMPLES = {
+    "Bull Call": ('Call', 100.0, 105.0, 3.0, 1.0),
+    "Bear Call": ('Call', 105.0, 100.0, 1.0, 3.0),
+    "Bull Put": ('Put', 95.0, 100.0, 1.0, 2.5),
+    "Bear Put": ('Put', 100.0, 95.0, 2.5, 1.0),
+}
+INPUT_KEYS = ("option_type", "long_strike", "short_strike", "long_premium", "short_premium")
+
+
+def load_spread_example():
+    example = EXAMPLES.get(st.session_state["spread_example"])
+    if example is not None:
+        for key, value in zip(INPUT_KEYS, example):
+            st.session_state[f"spread_{key}"] = value
+        st.session_state["spread_quantity"] = 1
+        st.session_state["spread_multiplier"] = 100
+        st.session_state.pop("vertical_spread", None)
 
 
 def show_vertical_spreads_tab():
     st.header("Vertical Spread Analyzer")
     st.caption("Both legs share one expiry. Premiums are per share; P&L is for the entire position, before fees.")
+    for key, value in zip(INPUT_KEYS, EXAMPLES["Bull Call"]):
+        st.session_state.setdefault(f"spread_{key}", value)
+    st.session_state.setdefault("spread_multiplier", 100)
+    st.selectbox("Example Preset", ("Custom", *EXAMPLES), key="spread_example", on_change=load_spread_example)
 
     with st.form("vertical_spread_form"):
         option_type = st.selectbox("Spread Option Type", ('Call', 'Put'), key="spread_option_type")
         long, short = st.columns(2)
         with long:
-            long_strike = st.number_input("Long Strike", value=100.0, min_value=0.01, step=1.0, key="spread_long_strike")
-            long_premium = st.number_input("Premium Paid", value=3.0, min_value=0.0, step=0.1, key="spread_long_premium")
+            long_strike = st.number_input("Long Strike", min_value=0.01, step=1.0, key="spread_long_strike")
+            long_premium = st.number_input("Premium Paid", min_value=0.0, step=0.1, key="spread_long_premium")
         with short:
-            short_strike = st.number_input("Short Strike", value=105.0, min_value=0.01, step=1.0, key="spread_short_strike")
-            short_premium = st.number_input("Premium Received", value=1.0, min_value=0.0, step=0.1, key="spread_short_premium")
-        quantity = st.number_input("Number of Spreads", value=1, min_value=1, step=1, key="spread_quantity")
-        multiplier = st.number_input("Contract Multiplier", value=100, min_value=1, step=1, key="spread_multiplier")
+            short_strike = st.number_input("Short Strike", min_value=0.01, step=1.0, key="spread_short_strike")
+            short_premium = st.number_input("Premium Received", min_value=0.0, step=0.1, key="spread_short_premium")
+        quantity = st.number_input("Number of Spreads", min_value=1, step=1, key="spread_quantity")
+        multiplier = st.number_input("Contract Multiplier", min_value=1, step=1, key="spread_multiplier")
         submitted = st.form_submit_button("Analyze Spread")
 
     if submitted:
         try:
             st.session_state["vertical_spread"] = VerticalSpread(
                 long_strike, short_strike, long_premium, short_premium, quantity, multiplier, option_type == 'Call')
+            st.session_state.pop("spread_expiration_price", None)
         except ValueError as e:
             st.session_state.pop("vertical_spread", None)
             st.error(str(e))
@@ -53,3 +78,21 @@ def show_vertical_spreads_tab():
     fig = spread.plot_payoff(show_legs)
     st.pyplot(fig)
     plt.close(fig)
+
+    st.subheader("Inspect Expiration P&L")
+    default_price = spread.breakeven if spread.breakeven is not None else (spread.long_strike + spread.short_strike) / 2
+    S = st.number_input("Underlying Price at Expiration", value=float(default_price), min_value=0.0, step=1.0, key="spread_expiration_price")
+    long_payoff, short_payoff = spread.leg_payoffs(S)
+    long_cash = -spread.long_premium * spread.size
+    short_cash = spread.short_premium * spread.size
+    option_type = "Call" if spread.call else "Put"
+    rows = [
+        {"Leg": f"Long {option_type}", "Strike": spread.long_strike, "Payoff ($)": long_payoff,
+         "Entry Cash Flow ($)": long_cash, "P&L ($)": long_payoff + long_cash},
+        {"Leg": f"Short {option_type}", "Strike": spread.short_strike, "Payoff ($)": short_payoff,
+         "Entry Cash Flow ($)": short_cash, "P&L ($)": short_payoff + short_cash},
+        {"Leg": "Spread", "Strike": None, "Payoff ($)": long_payoff + short_payoff,
+         "Entry Cash Flow ($)": -spread.entry_debit, "P&L ($)": spread.expiration_pnl(S)},
+    ]
+    st.dataframe(pd.DataFrame(rows).round(2), hide_index=True)
+    st.caption("Positive cash flow is received; negative cash flow is paid.")
