@@ -22,6 +22,22 @@ class VerticalSpread:
         self.call = call
         self.size = quantity * multiplier
         self.entry_debit = (long_premium - short_premium) * self.size
+        self.width = abs(long_strike - short_strike)
+
+        if call:
+            self.strategy = "Bull Call" if long_strike < short_strike else "Bear Call"
+        else:
+            self.strategy = "Bull Put" if long_strike < short_strike else "Bear Put"
+
+        low, high = sorted((long_strike, short_strike))
+        low_pnl, high_pnl = self.expiration_pnl(low), self.expiration_pnl(high)
+        self.min_pnl = min(low_pnl, high_pnl)
+        self.max_pnl = max(low_pnl, high_pnl)
+        self.max_profit = max(0, self.max_pnl)
+        self.max_loss = max(0, -self.min_pnl)
+        self.breakeven = None
+        if self.min_pnl <= 0 <= self.max_pnl:
+            self.breakeven = low - low_pnl * self.width / (high_pnl - low_pnl)
 
     def leg_payoffs(self, S):
         if not math.isfinite(S) or S < 0:
