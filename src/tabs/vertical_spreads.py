@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 from models.vertical_spread import VerticalSpread
 
 
@@ -46,3 +47,9 @@ def show_vertical_spreads_tab():
         st.warning(f"These entry premiums give expiration P&L between ${spread.min_pnl:,.2f} and ${spread.max_pnl:,.2f}, with no breakeven.")
     elif spread.min_pnl == 0 or spread.max_pnl == 0:
         st.caption("Breakeven marks the edge of a zero-P&L price range.")
+
+    st.subheader("Expiration P&L")
+    show_legs = st.checkbox("Show Individual Legs", key="spread_show_legs")
+    fig = spread.plot_payoff(show_legs)
+    st.pyplot(fig)
+    plt.close(fig)

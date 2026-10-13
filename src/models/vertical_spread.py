@@ -1,4 +1,6 @@
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 class VerticalSpread:
@@ -50,3 +52,26 @@ class VerticalSpread:
 
     def expiration_pnl(self, S):
         return sum(self.leg_payoffs(S)) - self.entry_debit
+
+    def plot_payoff(self, show_legs=False):
+        low, high = sorted((self.long_strike, self.short_strike))
+        padding = max(self.width, high * 0.05)
+        prices = np.unique(np.r_[np.linspace(max(0, low - padding), high + padding, 301), low, high])
+        long, short = np.array([self.leg_payoffs(S) for S in prices]).T
+
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.plot(prices, long + short - self.entry_debit, lw=2, label="Spread P&L")
+        if show_legs:
+            ax.plot(prices, long - self.long_premium * self.size, '--', label="Long Leg P&L")
+            ax.plot(prices, short + self.short_premium * self.size, '--', label="Short Leg P&L")
+        ax.axhline(0, color='black', lw=1)
+        ax.axvline(self.long_strike, color='gray', ls=':', label=f"Long Strike (${self.long_strike:g})")
+        ax.axvline(self.short_strike, color='gray', ls='--', label=f"Short Strike (${self.short_strike:g})")
+        if self.breakeven is not None:
+            ax.axvline(self.breakeven, color='green', ls=':', label=f"Breakeven (${self.breakeven:g})")
+        ax.set_xlabel("Underlying Price at Expiration ($)")
+        ax.set_ylabel("Position P&L ($)")
+        ax.legend(fontsize='small')
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        return fig
